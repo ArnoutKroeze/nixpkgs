@@ -5,7 +5,7 @@ stdenv.mkDerivation rec {
   version = "1.18";
 
   src = fetchurl {
-    url = "http://www.pelulamu.net/ibniz/${pname}-${version}.tar.gz";
+    url = "https://github.com/viznut/IBNIZ${pname}-${version}.tar.gz";
     sha256 = "10b4dka8zx7y84m1a58z9j2vly8mz9aw9wn8z9vx9av739j95wp2";
   };
 
@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     description = "Virtual machine designed for extremely compact low-level audiovisual programs";
-    homepage = "http://www.pelulamu.net/ibniz/";
+    homepage = "https://github.com/viznut/IBNIZ";
     license = licenses.zlib;
     platforms = platforms.linux;
     maintainers = [ maintainers.dezgeg ];

@@ -3,27 +3,27 @@
 let
   python = python3.override {
     packageOverrides = self: super: {
-      mautrix_0_13 = self.mautrix.overridePythonAttrs (oldAttrs: rec {
-        version = "0.13.3";
-        src = oldAttrs.src.override {
-          inherit (oldAttrs) pname;
-          inherit version;
-          sha256 = "1e4a292469f3e200c182aaa5bf693a5c3834b2a0cfb3d29e4c9a1559db7740e3";
+      mautrix = super.mautrix.overridePythonAttrs (oldAttrs: rec {
+        version = "0.16.10";
+        src = fetchFromGitHub {
+          owner = "mautrix";
+          repo = "python";
+          rev = "v${version}";
+          hash = "sha256-YQsQ7M+mHcRdGUZp+mo46AlBmKSdmlgRdGieEG0Hu9k=";
         };
       });
     };
   };
 in
-
 python.pkgs.buildPythonApplication rec {
   pname = "heisenbridge";
-  version = "1.8.2";
+  version = "1.13.1";
 
   src = fetchFromGitHub {
     owner = "hifi";
     repo = pname;
-    rev = "v${version}";
-    sha256 = "173prcd56rwlxjxlw67arnm12k1l317xi5s6m7jhmp8zbbrj5vwr";
+    rev = "refs/tags/v${version}";
+    sha256 = "sha256-sgZql9373xKT7Hi8M5TIZTOkS2AOFoKA1DXYa2f2IkA=";
   };
 
   postPatch = ''
@@ -31,14 +31,13 @@ python.pkgs.buildPythonApplication rec {
   '';
 
   propagatedBuildInputs = with python.pkgs; [
-    aiohttp
     irc
-    mautrix_0_13
+    ruamel-yaml
+    mautrix
     python-socks
-    pyyaml
   ];
 
-  checkInputs = with python.pkgs; [
+  nativeCheckInputs = with python.pkgs; [
     pytestCheckHook
   ];
 

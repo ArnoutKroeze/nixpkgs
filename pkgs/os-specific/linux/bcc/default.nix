@@ -7,7 +7,7 @@
 
 python.pkgs.buildPythonApplication rec {
   pname = "bcc";
-  version = "0.23.0";
+  version = "0.26.0";
 
   disabled = !stdenv.isLinux;
 
@@ -15,7 +15,7 @@ python.pkgs.buildPythonApplication rec {
     owner = "iovisor";
     repo = "bcc";
     rev = "v${version}";
-    sha256 = "sha256-iLVUwJTDQ8Bn38sgHOcIR8TYxIB+gIlfTgr9+gPU0gE=";
+    sha256 = "sha256-zx38tPwuuGU6px9pRNN5JtvBysK9fStOvoqe7cLo7LM=";
   };
   format = "other";
 
@@ -52,6 +52,10 @@ python.pkgs.buildPythonApplication rec {
 
     substituteAll ${./absolute-ausyscall.patch} ./absolute-ausyscall.patch
     patch -p1 < absolute-ausyscall.patch
+
+    # https://github.com/iovisor/bcc/issues/3996
+    substituteInPlace src/cc/libbcc.pc.in \
+      --replace '$'{exec_prefix}/@CMAKE_INSTALL_LIBDIR@ @CMAKE_INSTALL_FULL_LIBDIR@
   '';
 
   postInstall = ''
@@ -76,6 +80,8 @@ python.pkgs.buildPythonApplication rec {
   postFixup = ''
     wrapPythonProgramsIn "$out/share/bcc/tools" "$out $pythonPath"
   '';
+
+  outputs = [ "out" "man" ];
 
   passthru.tests = {
     bpf = nixosTests.bpf;

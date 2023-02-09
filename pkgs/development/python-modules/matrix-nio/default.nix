@@ -18,6 +18,7 @@
 , jsonschema
 , peewee
 , poetry-core
+, py
 , pycryptodome
 , pytest-aiohttp
 , pytest-benchmark
@@ -28,22 +29,22 @@
 
 buildPythonPackage rec {
   pname = "matrix-nio";
-  version = "0.18.7";
+  version = "0.20.1";
   format = "pyproject";
 
   src = fetchFromGitHub {
     owner = "poljar";
     repo = "matrix-nio";
     rev = version;
-    hash = "sha256-eti9kvfv3y7m+mJzcxftyn8OyVSd2Ehqd3eU2ezMV5Q=";
+    hash = "sha256-6oMOfyl8yR8FMprPYD831eiXh9g/bqslvxDmVcrNK80=";
   };
 
   postPatch = ''
     substituteInPlace pyproject.toml \
-      --replace 'aiofiles = "^0.6.0"' 'aiofiles = "*"'
-    # Remove after https://github.com/poljar/matrix-nio/pull/288
-    substituteInPlace pyproject.toml \
-      --replace 'aiohttp-socks = "^0.6.0"' 'aiohttp-socks = "^0.7.0"'
+      --replace 'aiofiles = "^0.6.0"' 'aiofiles = "*"' \
+      --replace 'h11 = "^0.12.0"' 'h11 = "*"' \
+      --replace 'jsonschema = "^3.2.0"' 'jsonschema = "*"' \
+      --replace 'cachetools = { version = "^4.2.1", optional = true }' 'cachetools = { version = "*", optional = true }'
   '';
 
   nativeBuildInputs = [
@@ -69,16 +70,19 @@ buildPythonPackage rec {
     unpaddedbase64
   ];
 
-  checkInputs = [
+  nativeCheckInputs = [
     aioresponses
     faker
     hypothesis
+    py
     pytest-aiohttp
     pytest-benchmark
     pytestCheckHook
   ];
 
-  pytestFlagsArray = [ "--benchmark-disable" ];
+  pytestFlagsArray = [
+    "--benchmark-disable"
+  ];
 
   disabledTests = [
     # touches network

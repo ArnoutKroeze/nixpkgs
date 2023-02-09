@@ -2,37 +2,41 @@
 , stdenv
 , buildPythonPackage
 , fetchFromGitHub
-, aiofiles
+, hatchling
+
+# runtime
+, ApplicationServices
 , anyio
-, contextlib2
 , itsdangerous
 , jinja2
 , python-multipart
 , pyyaml
-, requests
-, aiosqlite
-, databases
-, pytest-asyncio
+, httpx
+, typing-extensions
+
+# tests
 , pytestCheckHook
 , pythonOlder
 , trio
-, typing-extensions
-, ApplicationServices
 }:
 
 buildPythonPackage rec {
   pname = "starlette";
-  version = "0.17.1";
-  format = "setuptools";
+  version = "0.23.1";
+  format = "pyproject";
 
-  disabled = pythonOlder "3.6";
+  disabled = pythonOlder "3.7";
 
   src = fetchFromGitHub {
     owner = "encode";
     repo = pname;
-    rev = version;
-    sha256 = "sha256-qT/w7r8PsrauLoBolwCGpxiwhDZo3z6hIqKVXeY5yqA=";
+    rev = "refs/tags/${version}";
+    hash = "sha256-LcFrdaRgFBqcdylCzNlewj/papsg/sZ1FMVxBDLvQWI=";
   };
+
+  nativeBuildInputs = [
+    hatchling
+  ];
 
   postPatch = ''
     # remove coverage arguments to pytest
@@ -40,28 +44,27 @@ buildPythonPackage rec {
   '';
 
   propagatedBuildInputs = [
-    aiofiles
     anyio
     itsdangerous
     jinja2
     python-multipart
     pyyaml
-    requests
-  ] ++ lib.optionals (pythonOlder "3.8") [
+    httpx
+  ] ++ lib.optionals (pythonOlder "3.10") [
     typing-extensions
-  ] ++ lib.optionals (pythonOlder "3.7") [
-    contextlib2
-  ] ++ lib.optional stdenv.isDarwin [
+  ] ++ lib.optionals stdenv.isDarwin [
     ApplicationServices
   ];
 
-  checkInputs = [
-    aiosqlite
-    databases
-    pytest-asyncio
+  nativeCheckInputs = [
     pytestCheckHook
     trio
     typing-extensions
+  ];
+
+  pytestFlagsArray = [
+    "-W" "ignore::DeprecationWarning"
+    "-W" "ignore::trio.TrioDeprecationWarning"
   ];
 
   disabledTests = [
@@ -75,6 +78,7 @@ buildPythonPackage rec {
   ];
 
   meta = with lib; {
+    changelog = "https://github.com/encode/starlette/releases/tag/${version}";
     homepage = "https://www.starlette.io/";
     description = "The little ASGI framework that shines";
     license = licenses.bsd3;

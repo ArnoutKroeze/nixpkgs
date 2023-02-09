@@ -1,18 +1,36 @@
-{ lib, stdenv, fetchFromGitHub, openssl, libsamplerate, alsa-lib, AppKit }:
+{ lib
+, stdenv
+, fetchFromGitHub
+, fetchpatch
+, openssl
+, libsamplerate
+, alsa-lib
+, AppKit
+}:
 
 stdenv.mkDerivation rec {
   pname = "pjsip";
-  version = "2.11.1";
+  version = "2.13";
 
   src = fetchFromGitHub {
     owner = pname;
     repo = "pjproject";
     rev = version;
-    sha256 = "sha256-mqtlxQDIFee93wpdn8oNWmMPDyjYTCmVqF6IJvJbRBM=";
+    sha256 = "sha256-yzszmm3uIyXtYFgZtUP3iswLx4u/8UbFt80Ln25ToFE=";
   };
 
   patches = [
     ./fix-aarch64.patch
+    (fetchpatch {
+      name = "CVE-2022-23537.patch";
+      url = "https://github.com/pjsip/pjproject/commit/d8440f4d711a654b511f50f79c0445b26f9dd1e1.patch";
+      sha256 = "sha256-7ueQCHIiJ7MLaWtR4+GmBc/oKaP+jmEajVnEYqiwLRA=";
+    })
+    (fetchpatch {
+      name = "CVE-2022-23547.patch";
+      url = "https://github.com/pjsip/pjproject/commit/bc4812d31a67d5e2f973fbfaf950d6118226cf36.patch";
+      sha256 = "sha256-bpc8e8VAQpfyl5PX96G++6fzkFpw3Or1PJKNPKl7N5k=";
+    })
   ];
 
   buildInputs = [ openssl libsamplerate ]
@@ -34,10 +52,12 @@ stdenv.mkDerivation rec {
   dontPatchELF = true;
 
   meta = with lib; {
+    broken = stdenv.isDarwin;
     description = "A multimedia communication library written in C, implementing standard based protocols such as SIP, SDP, RTP, STUN, TURN, and ICE";
     homepage = "https://pjsip.org/";
     license = licenses.gpl2Plus;
     maintainers = with maintainers; [ olynch ];
+    mainProgram = "pjsua";
     platforms = platforms.linux ++ platforms.darwin;
   };
 }

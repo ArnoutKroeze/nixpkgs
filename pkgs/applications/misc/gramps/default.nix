@@ -29,7 +29,7 @@ in buildPythonApplication rec {
     sha256 = "00358nzyw686ypqv45imc5k9frcqnhla0hpx9ynna3iy6iz5006x";
   };
 
-  pythonPath = with pythonPackages; [ bsddb3 PyICU pygobject3 pycairo ];
+  pythonPath = with pythonPackages; [ bsddb3 pyicu pygobject3 pycairo ];
 
   # Same installPhase as in buildPythonApplication but without --old-and-unmanageble
   # install flag.
@@ -54,6 +54,10 @@ in buildPythonApplication rec {
 
     runHook postInstall
   '';
+
+  # https://github.com/NixOS/nixpkgs/issues/149812
+  # https://nixos.org/manual/nixpkgs/stable/#ssec-gnome-hooks-gobject-introspection
+  strictDeps = false;
 
   meta = with lib; {
     description = "Genealogy software";

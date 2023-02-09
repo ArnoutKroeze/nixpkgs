@@ -1,35 +1,42 @@
-{ lib, rustPlatform, fetchFromGitHub, ncurses, openssl, pkg-config, stdenv, Security, fetchpatch }:
+{ lib
+, stdenv
+, rustPlatform
+, fetchFromGitHub
+, ncurses
+, openssl
+, pkg-config
+, Security
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "wiki-tui";
-  version = "0.4.3";
+  version = "0.6.1";
 
   src = fetchFromGitHub {
     owner = "Builditluc";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-maN/0lJx6/lj3Zn+IZcPJFPPFVLbnpwxeMSTyzKYX6s=";
+    hash = "sha256-WiyRBF3rWLpOZ8mxT89ImRL++Oq9+b88oSKjr4tzCGs=";
   };
 
-  # latest update forgot to include cargo.lock update
-  cargoPatches = [
-    (fetchpatch {
-      url = "https://github.com/Builditluc/wiki-tui/commit/87993eaca35a14afc1fb557482b099a6dd2da911.patch";
-      sha256 = "sha256-n04FCZwQ9pPanz9QQY/7Apyoy6lG0t/23S40p4c/TXw=";
-    })
+  nativeBuildInputs = [
+    pkg-config
   ];
 
-  buildInputs = [ ncurses openssl ] ++ lib.optional stdenv.isDarwin Security;
+  buildInputs = [
+    ncurses
+    openssl
+  ] ++ lib.optional stdenv.isDarwin [
+    Security
+  ];
 
-  nativeBuildInputs = [ pkg-config ];
-
-  cargoSha256 = "sha256-x4oS9IBF2GMcilv9Oi/IeFaCM3sxWn7PpkKcaeSqIog=";
+  cargoHash = "sha256-R9xxIDqkU7FeulpD7PUM6aHgA67PVgqxHKYtdrjdaUo=";
 
   meta = with lib; {
     description = "A simple and easy to use Wikipedia Text User Interface";
     homepage = "https://github.com/builditluc/wiki-tui";
+    changelog = "https://github.com/Builditluc/wiki-tui/releases/tag/v${version}";
     license = licenses.mit;
-    maintainers = with maintainers; [ lom ];
-    mainProgram = "wiki-tui";
+    maintainers = with maintainers; [ lom builditluc ];
   };
 }

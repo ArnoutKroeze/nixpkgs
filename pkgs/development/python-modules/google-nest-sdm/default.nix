@@ -1,19 +1,22 @@
 { lib
 , aiohttp
+, asynctest
 , buildPythonPackage
+, coreutils
 , fetchFromGitHub
 , google-auth
 , google-auth-oauthlib
 , google-cloud-pubsub
-, pythonOlder
-, requests_oauthlib
 , pytest-aiohttp
+, pytest-asyncio
 , pytestCheckHook
+, pythonOlder
+, requests-oauthlib
 }:
 
 buildPythonPackage rec {
   pname = "google-nest-sdm";
-  version = "1.2.1";
+  version = "2.2.4";
   format = "setuptools";
 
   disabled = pythonOlder "3.8";
@@ -21,8 +24,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "allenporter";
     repo = "python-google-nest-sdm";
-    rev = version;
-    sha256 = "sha256-gg5JAkTUuch6HcRLl1Xm/LAoC32EcayG1w3Fk7GrZD8=";
+    rev = "refs/tags/${version}";
+    hash = "sha256-HQzU6no/DV2QOC+LV7kUSrygTwgAvfMSmYIKaBd/PCE=";
   };
 
   propagatedBuildInputs = [
@@ -30,11 +33,14 @@ buildPythonPackage rec {
     google-auth
     google-auth-oauthlib
     google-cloud-pubsub
-    requests_oauthlib
+    requests-oauthlib
   ];
 
-  checkInputs = [
+  nativeCheckInputs = [
+    asynctest
+    coreutils
     pytest-aiohttp
+    pytest-asyncio
     pytestCheckHook
   ];
 
@@ -42,9 +48,15 @@ buildPythonPackage rec {
     "google_nest_sdm"
   ];
 
+  disabledTests = [
+    "test_clip_preview_transcode"
+    "test_event_manager_event_expiration_with_transcode"
+  ];
+
   meta = with lib; {
-    description = "Python module for Google Nest Device Access using the Smart Device Management API";
+    description = "Module for Google Nest Device Access using the Smart Device Management API";
     homepage = "https://github.com/allenporter/python-google-nest-sdm";
+    changelog = "https://github.com/allenporter/python-google-nest-sdm/releases/tag/${version}";
     license = licenses.asl20;
     maintainers = with maintainers; [ fab ];
   };

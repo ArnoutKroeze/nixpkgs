@@ -1,85 +1,82 @@
-{ lib, python3, mautrix-telegram, fetchFromGitHub
+{ lib
+, python3
+, fetchFromGitHub
 , withE2BE ? true
+, withHQthumbnails ? false
 }:
 
 let
   python = python3.override {
     packageOverrides = self: super: {
       tulir-telethon = self.telethon.overridePythonAttrs (oldAttrs: rec {
-        version = "1.25.0a1";
+        version = "1.27.0a7";
         pname = "tulir-telethon";
-        src = oldAttrs.src.override {
+        src = super.fetchPypi {
           inherit pname version;
-          sha256 = "sha256-TFZRmhCrQ9IccGFcYxwdbD2ReSCWZ2n33S1ank1Bn1k=";
+          sha256 = "sha256-w4WILvLvJBKf3Nlj0omTCDDD4z+b0XFlCplQ/IHwIPs=";
         };
+        doCheck = false;
       });
     };
   };
-
-  # officially supported database drivers
-  dbDrivers = with python.pkgs; [
-    psycopg2
-    aiosqlite
-    # sqlite driver is already shipped with python by default
-  ];
-
-in python.pkgs.buildPythonPackage rec {
+in
+python.pkgs.buildPythonPackage rec {
   pname = "mautrix-telegram";
-  version = "0.11.0";
-  disabled = python.pythonOlder "3.7";
+  version = "unstable-2023-01-28";
+  disabled = python.pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "mautrix";
     repo = "telegram";
-    rev = "v${version}";
-    sha256 = "sha256-s0UCl0FJWO53hvHJhpeSQVGCBKEH7COFLXFCFitpDjw=";
+    rev = "f12abbe03846fd5897d58572ab24b70a58b337d2";
+    sha256 = "sha256-5ZZ85FOmTO26q2zhAIsF7mTlN4BLNLW2dQF+0culkUM=";
   };
 
-  patches = [ ./0001-Re-add-entrypoint.patch ];
-  postPatch = ''
-    substituteInPlace requirements.txt \
-      --replace "telethon>=1.22,<1.23" "telethon"
-  '';
+  format = "setuptools";
 
+  patches = [ ./0001-Re-add-entrypoint.patch ];
 
   propagatedBuildInputs = with python.pkgs; ([
-    Mako
-    aiohttp
-    mautrix
-    sqlalchemy
-    CommonMark
     ruamel-yaml
-    python_magic
+    python-magic
+    CommonMark
+    aiohttp
+    yarl
+    mautrix
     tulir-telethon
-    telethon-session-sqlalchemy
-    pillow
-    lxml
-    setuptools
-    prometheus-client
-  ] ++ lib.optionals withE2BE [
     asyncpg
+    Mako
+    # speedups
+    cryptg
+    aiodns
+    brotli
+    # qr_login
+    pillow
+    qrcode
+    # formattednumbers
+    phonenumbers
+    # metrics
+    prometheus-client
+    # sqlite
+    aiosqlite
+  ] ++ lib.optionals withHQthumbnails [
+    # hq_thumbnails
+    moviepy
+  ] ++ lib.optionals withE2BE [
+    # e2be
     python-olm
     pycryptodome
     unpaddedbase64
-  ]) ++ dbDrivers;
+  ]);
 
-  # Tests are broken and throw the following for every test:
-  #   TypeError: 'Mock' object is not subscriptable
-  #
-  # The tests were touched the last time in 2019 and upstream CI doesn't even build
-  # those, so it's safe to assume that this part of the software is abandoned.
+  # has no tests
   doCheck = false;
-  checkInputs = with python.pkgs; [
-    pytest
-    pytest-mock
-    pytest-asyncio
-  ];
 
   meta = with lib; {
     homepage = "https://github.com/mautrix/telegram";
     description = "A Matrix-Telegram hybrid puppeting/relaybot bridge";
     license = licenses.agpl3Plus;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ nyanloutre ma27 ];
+    maintainers = with maintainers; [ nyanloutre ma27 nickcao ];
   };
 }

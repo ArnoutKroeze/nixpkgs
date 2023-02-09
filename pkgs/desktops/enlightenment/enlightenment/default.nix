@@ -1,4 +1,5 @@
-{ lib, stdenv
+{ lib
+, stdenv
 , fetchurl
 , meson
 , ninja
@@ -13,19 +14,19 @@
 , pam
 , xkeyboard_config
 , udisks2
-
 , waylandSupport ? false, wayland-protocols, xwayland
 , bluetoothSupport ? true, bluez5
 , pulseSupport ? !stdenv.isDarwin, libpulseaudio
+, directoryListingUpdater
 }:
 
 stdenv.mkDerivation rec {
   pname = "enlightenment";
-  version = "0.25.0";
+  version = "0.25.4";
 
   src = fetchurl {
-    url = "http://download.enlightenment.org/rel/apps/${pname}/${pname}-${version}.tar.xz";
-    sha256 = "01nzyvjy06043m01fdb1309xx3wxxg0s3hj9g9di7jjsxp774vkx";
+    url = "https://download.enlightenment.org/rel/apps/${pname}/${pname}-${version}.tar.xz";
+    sha256 = "sha256-VttdIGuCG5qIMdJucT5BCscLIlWm9D/N98Ae794jt6I=";
   };
 
   nativeBuildInputs = [
@@ -70,11 +71,13 @@ stdenv.mkDerivation rec {
 
   passthru.providedSessions = [ "enlightenment" ];
 
+  passthru.updateScript = directoryListingUpdater { };
+
   meta = with lib; {
     description = "The Compositing Window Manager and Desktop Shell";
     homepage = "https://www.enlightenment.org";
     license = licenses.bsd2;
     platforms = platforms.linux;
-    maintainers = with maintainers; [ matejc tstrobel ftrvxmtrx romildo ];
+    maintainers = with maintainers; [ matejc ftrvxmtrx ] ++ teams.enlightenment.members;
   };
 }

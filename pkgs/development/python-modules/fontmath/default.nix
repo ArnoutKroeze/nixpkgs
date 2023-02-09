@@ -5,19 +5,19 @@
 
 buildPythonPackage rec {
   pname = "fontMath";
-  version = "0.9.1";
+  version = "0.9.3";
   disabled = isPy27;
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "1c5e76e135409f49b15809d0ce94dfd00850f893f86d4d6a336808dbbf292700";
+    sha256 = "sha256-alOHy3/rEFlY2y9c7tyHhRPMNb83FeJiCQ8FV74MGxw=";
     extension = "zip";
   };
 
   nativeBuildInputs = [ setuptools-scm ];
 
   propagatedBuildInputs = [ fonttools ];
-  checkInputs = [ pytest pytest-runner ];
+  nativeCheckInputs = [ pytest pytest-runner ];
 
   meta = with lib; {
     description = "A collection of objects that implement fast font, glyph, etc. math";

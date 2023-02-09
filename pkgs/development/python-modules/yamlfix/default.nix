@@ -2,44 +2,43 @@
 , buildPythonPackage
 , click
 , fetchFromGitHub
+, maison
+, pdm-pep517
 , pytest-xdist
 , pytestCheckHook
 , pythonOlder
 , ruyaml
+, setuptools
 }:
 
 buildPythonPackage rec {
   pname = "yamlfix";
-  version = "0.8.0";
-  format = "setuptools";
+  version = "1.6.0";
+  format = "pyproject";
 
   disabled = pythonOlder "3.7";
 
   src = fetchFromGitHub {
     owner = "lyz-code";
     repo = pname;
-    rev = version;
-    sha256 = "sha256-Gkq80YMeiPy7xxLauA/nloW4znMV2tfE+e24HyZgUaQ=";
+    rev = "refs/tags/${version}";
+    hash = "sha256-OXo9PkvKn+XPxfXUObwps62lwNo6lE4Ot5L0lZPIYPw=";
   };
+
+  nativeBuildInputs = [
+    setuptools
+    pdm-pep517
+  ];
 
   propagatedBuildInputs = [
     click
+    maison
     ruyaml
   ];
 
-  checkInputs = [
+  nativeCheckInputs = [
     pytest-xdist
     pytestCheckHook
-  ];
-
-  postPatch = ''
-    substituteInPlace pyproject.toml \
-      --replace 'python_paths = "."' ""
-  '';
-
-  pytestFlagsArray = [
-    "-n"
-    "$NIX_BUILD_CORES"
   ];
 
   pythonImportsCheck = [
@@ -49,7 +48,8 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Python YAML formatter that keeps your comments";
     homepage = "https://github.com/lyz-code/yamlfix";
-    license = licenses.gpl3Plus;
+    changelog = "https://github.com/lyz-code/yamlfix/blob/${version}/CHANGELOG.md";
+    license = licenses.gpl3Only;
     maintainers = with maintainers; [ koozz ];
   };
 }

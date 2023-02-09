@@ -2,20 +2,20 @@
 , fetchFromGitHub
 , buildGoModule
 , stayrtr
-, testVersion
+, testers
 }:
 
 buildGoModule rec {
   pname = "stayrtr";
-  version = "0.3.0";
+  version = "0.4.0";
 
   src = fetchFromGitHub {
     owner = "bgp";
     repo = "stayrtr";
     rev = "v${version}";
-    sha256 = "10ndb8p7znnjycwg56m63gzqf9zc6lq9mcvz4n48j0c4il5xyn8x";
+    sha256 = "sha256-oRFBvue5Tcgty1GgsZGb/CMHmKM0mIc5vWOMsL/0IfI=";
   };
-  vendorSha256 = "1nwrzbpqycr4ixk8a90pgaxcwakv5nlfnql6hmcc518qrva198wp";
+  vendorHash = "sha256-VomrmyNa5I6AVSpw5sg0e4b7w/JlFQINBYm+eh1FoNw=";
 
   ldflags = [
     "-s"
@@ -23,7 +23,7 @@ buildGoModule rec {
     "-X main.version=${version}"
   ];
 
-  passthru.tests.version = testVersion {
+  passthru.tests.version = testers.testVersion {
     package = stayrtr;
   };
 

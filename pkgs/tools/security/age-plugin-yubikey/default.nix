@@ -5,24 +5,27 @@
 , pkg-config
 , pcsclite
 , PCSC
+, Foundation
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "age-plugin-yubikey";
-  version = "0.2.0";
+  version = "0.3.2";
 
   src = fetchFromGitHub {
     owner = "str4d";
     repo = pname;
-    rev = "51910edfab4006a068864602469ff7db3766bfbe"; # no tag for this release
-    sha256 = "sha256-mMqvBlGFdwe5BaC0bXZg/27BGNmFTTYbLUHWUciqxQ0=";
+    rev = "v${version}";
+    sha256 = "sha256-x4J8lE4Peenu3I7bZ3yoLpyukkMHD2re63GCni0cfnI=";
   };
 
-  cargoSha256 = "sha256-OCbVLSmGx51pJ/EPgPfOyVrYWdloNEbexDV1zMsmEJc=";
+  cargoSha256 = "sha256-Qp7AXy044G17FxR2sopN00cgX91A8TAydrwvJrAfhns=";
 
-  nativeBuildInputs = [ pkg-config ];
+  nativeBuildInputs = lib.optionals stdenv.isLinux [ pkg-config ];
+
   buildInputs =
     if stdenv.isDarwin then [
+      Foundation
       PCSC
     ] else [
       pcsclite

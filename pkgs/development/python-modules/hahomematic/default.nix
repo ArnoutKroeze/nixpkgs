@@ -1,8 +1,13 @@
 { lib
+, aiohttp
 , buildPythonPackage
 , fetchFromGitHub
-, aiohttp
+, pydevccu
+, pytest-aiohttp
+, pytestCheckHook
+, python-slugify
 , pythonOlder
+, setuptools
 , voluptuous
 , websocket-client
 , xmltodict
@@ -10,24 +15,35 @@
 
 buildPythonPackage rec {
   pname = "hahomematic";
-  version = "0.9.1";
-  format = "setuptools";
+  version = "2023.2.5";
+  format = "pyproject";
 
   disabled = pythonOlder "3.9";
 
   src = fetchFromGitHub {
     owner = "danielperna84";
     repo = pname;
-    rev = version;
-    sha256 = "sha256-sxYa0SCsX1NZlCRMIpwyU1KPEteVH5HGLx1dFsbiu/E=";
+    rev = "refs/tags/${version}";
+    sha256 = "sha256-DD6DZzFuAGOSJZq7PM8yhJMXdEXw6LR6KR/f5XUVZ8Y=";
   };
+
+  nativeBuildInputs = [
+    setuptools
+  ];
 
   propagatedBuildInputs = [
     aiohttp
+    python-slugify
     voluptuous
   ];
 
-  # Module has no tests
+  nativeCheckInputs = [
+    pydevccu
+    pytest-aiohttp
+    pytestCheckHook
+  ];
+
+  # Starting with 0.30 the tests are broken, check with the next major release
   doCheck = false;
 
   pythonImportsCheck = [
@@ -37,6 +53,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Python module to interact with HomeMatic devices";
     homepage = "https://github.com/danielperna84/hahomematic";
+    changelog = "https://github.com/danielperna84/hahomematic/releases/tag/${version}";
     license = with licenses; [ mit ];
     maintainers = with maintainers; [ fab ];
   };

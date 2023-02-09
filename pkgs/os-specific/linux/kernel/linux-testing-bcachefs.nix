@@ -1,9 +1,10 @@
 { lib
 , fetchpatch
 , kernel
-, date ? "2021-12-26"
-, commit ? "b034dfb24fece43a7677b9a29781495aeb62767f"
-, diffHash ? "0m7qrnfrcx3dki9lmsq3jk3mcrfm99djh83gwwjh401ql0cycx5p"
+, commitDate ? "2023-02-01"
+, currentCommit ? "65960c284ad149cc4bfbd64f21e6889c1e3d1c5f"
+, diffHash ? "sha256-4wpY3aYZ93OXSU4wmQs9K62nPyIzjKu4RBQTwksmyyk="
+
 , kernelPatches # must always be defined in bcachefs' all-packages.nix entry because it's also a top-level attribute supplied by callPackage
 , argsOverride ? {}
 , ...
@@ -12,20 +13,20 @@
 # NOTE: bcachefs-tools should be updated simultaneously to preserve compatibility
 (kernel.override ( args // {
   argsOverride = {
-    version = "${kernel.version}-bcachefs-unstable-${date}";
+    version = "${kernel.version}-bcachefs-unstable-${commitDate}";
 
     extraMeta = {
       branch = "master";
-      maintainers = with lib.maintainers; [ davidak chiiruno ];
+      maintainers = with lib.maintainers; [ davidak Madouura pedrohlc ];
     };
   } // argsOverride;
 
   kernelPatches = [ {
-      name = "bcachefs-${commit}";
+      name = "bcachefs-${currentCommit}";
 
       patch = fetchpatch {
-        name = "bcachefs-${commit}.diff";
-        url = "https://evilpiepirate.org/git/bcachefs.git/rawdiff/?id=${commit}&id2=v${lib.versions.majorMinor kernel.version}";
+        name = "bcachefs-${currentCommit}.diff";
+        url = "https://evilpiepirate.org/git/bcachefs.git/rawdiff/?id=${currentCommit}&id2=v${lib.versions.majorMinor kernel.version}";
         sha256 = diffHash;
       };
 

@@ -5,30 +5,28 @@
 , makeWrapper
 , symlinkJoin
 , writeShellScriptBin
-
 , wine
-, use64 ? false
 }:
 
 let
   inherit (lib) last splitString;
 
   pname = "winbox";
-  version = "3.32";
+  version = "3.37";
   name = "${pname}-${version}";
 
-  executable = fetchurl (if use64 then {
-    url = "https://download.mikrotik.com/winbox/${version}/${pname}64.exe";
-    sha256 = "1gf0zdn4ahfp08fn5w0nzigwldl3bjqcj2f08rcvyn0mbwar4znn";
+  executable = fetchurl (if (wine.meta.mainProgram == "wine64") then {
+    url = "https://download.mikrotik.com/winbox/${version}/winbox64.exe";
+    sha256 = "0fbl0i5ga9afg8mklm9xqidcr388sca00slj401npwh9b3j9drmb";
   } else {
-    url = "https://download.mikrotik.com/winbox/${version}/${pname}.exe";
-    sha256 = "18rmbnv7iwba19sfh4q4wfwh385snrmpvs6dyad2s9rv7vh2nch7";
+    url = "https://download.mikrotik.com/winbox/${version}/winbox.exe";
+    sha256 = "1zla30bc755x5gfv9ff1bgjvpsjmg2d7jsjxnwwy679fry4n4cwl";
   });
+
   # This is from the winbox AUR package:
   # https://aur.archlinux.org/cgit/aur.git/tree/winbox64?h=winbox64&id=8edd93792af84e87592e8645ca09e9795931e60e
   wrapper = writeShellScriptBin pname ''
     export WINEPREFIX="''${WINBOX_HOME:-"''${XDG_DATA_HOME:-"''${HOME}/.local/share"}/winbox"}/wine"
-    export WINEARCH=${if use64 then "win64" else "win32"}
     export WINEDLLOVERRIDES="mscoree=" # disable mono
     export WINEDEBUG=-all
     if [ ! -d "$WINEPREFIX" ] ; then
@@ -36,7 +34,7 @@ let
       ${wine}/bin/wineboot -u
     fi
 
-    ${wine}/bin/wine ${executable} "$@"
+    ${wine}/bin/${wine.meta.mainProgram} ${executable} "$@"
   '';
 
   desktopItem = makeDesktopItem {
@@ -45,11 +43,8 @@ let
     comment = "GUI administration for Mikrotik RouterOS";
     exec = pname;
     icon = pname;
-    type = "Application";
-    categories = "Utility";
-    extraDesktopEntries = {
-      StartupWMClass = last (splitString "/" executable);
-    };
+    categories = [ "Utility" ];
+    startupWMClass = last (splitString "/" executable);
   };
 
   # The icon is also from the winbox AUR package (see above).
@@ -73,7 +68,8 @@ symlinkJoin {
     homepage = "https://mikrotik.com";
     downloadPage = "https://mikrotik.com/download";
     changelog = "https://wiki.mikrotik.com/wiki/Winbox_changelog";
-    license = licenses.gpl3Plus;
+    sourceProvenance = with sourceTypes; [ binaryNativeCode ];
+    license = licenses.unfree;
     maintainers = with maintainers; [ yrd ];
   };
 }

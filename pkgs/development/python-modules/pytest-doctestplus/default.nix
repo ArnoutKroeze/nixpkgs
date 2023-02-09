@@ -1,21 +1,24 @@
 { lib
 , buildPythonPackage
 , fetchPypi
-, pythonOlder
 , packaging
 , pytest
 , pytestCheckHook
+, pythonOlder
+, setuptools
 , setuptools-scm
 }:
 
 buildPythonPackage rec {
   pname = "pytest-doctestplus";
-  version = "0.11.2";
+  version = "0.12.1";
+  format = "pyproject";
+
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "f393adf659709a5f111d6ca190871c61808a6f3611bd0a132e27e93b24dd3448";
+    hash = "sha256-epeeS+mdkRbgesBmxfANRfOHZ319d5877zDG/6jHkYE=";
   };
 
   nativeBuildInputs = [
@@ -28,9 +31,10 @@ buildPythonPackage rec {
 
   propagatedBuildInputs = [
     packaging
+    setuptools
   ];
 
-  checkInputs = [
+  nativeCheckInputs = [
     pytestCheckHook
   ];
 
@@ -49,6 +53,6 @@ buildPythonPackage rec {
     description = "Pytest plugin with advanced doctest features";
     homepage = "https://astropy.org";
     license = licenses.bsd3;
-    maintainers = [ maintainers.costrouc ];
+    maintainers = with maintainers; [ costrouc ];
   };
 }

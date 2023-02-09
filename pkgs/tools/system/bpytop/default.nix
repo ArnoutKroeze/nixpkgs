@@ -42,11 +42,8 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     description = "A resource monitor; python port of bashtop";
     homepage = src.meta.homepage;
-    license = licenses.apsl20;
+    license = licenses.asl20;
     maintainers = with maintainers; [ aw ];
     platforms = with platforms; linux ++ freebsd ++ darwin;
-
-    # https://github.com/NixOS/nixpkgs/pull/94625#issuecomment-668509399
-    broken = stdenv.isDarwin && stdenv.isx86_64;
   };
 }

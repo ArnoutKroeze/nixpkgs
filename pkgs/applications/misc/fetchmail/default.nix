@@ -1,15 +1,15 @@
-{ lib, stdenv, fetchurl, openssl }:
+{ lib, stdenv, fetchurl, openssl, python3 }:
 
 stdenv.mkDerivation rec {
   pname = "fetchmail";
-  version = "6.4.25";
+  version = "6.4.36";
 
   src = fetchurl {
     url = "mirror://sourceforge/fetchmail/fetchmail-${version}.tar.xz";
-    sha256 = "sha256-fr776JFy/Vnw/YMX2HQ6hDbzdczcqzkA5MPsBqj78n8=";
+    sha256 = "sha256-cA1DODjT4p4wRFKuxWshh09TjsJBE/3LslE5xfLtwjo=";
   };
 
-  buildInputs = [ openssl ];
+  buildInputs = [ openssl python3 ];
 
   configureFlags = [ "--with-ssl=${openssl.dev}" ];
 
